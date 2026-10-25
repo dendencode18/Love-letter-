@@ -1,0 +1,159 @@
+
+<!DOCTYPE html>
+<html lang="tl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masakit na Quiz 💔</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container" id="quiz">
+        <h1>Masakit na Quiz 💔</h1>
+        <p class="subtitle">Handa ka na bang masaktan?</p>
+        <p id="progress">Tanong 1 of 8</p>
+        <h2 id="question">Mahal mo pa ba siya?</h2>
+        <div class="answers" id="answers">
+            <button onclick="answerQuestion()">Oo</button>
+            <button onclick="answerQuestion()">Hindi</button>
+        </div>
+    </div>
+
+    <div class="jumpscare" id="jumpscare">
+        <img id="scareImage" alt="Jumpscare">
+        <video id="scareVideo" playsinline></video>
+    </div>
+
+    <div class="ending" id="ending">
+        <h1>Tapos na. 💔</h1>
+        <button onclick="restartQuiz()">Ulitin ang Quiz</button>
+    </div>
+
+    <audio id="backgroundMusic"></audio>
+
+    <script>
+        const questions = [
+            {q:"Mahal mo pa ba siya?", a:["Oo","Hindi"]},
+            {q:"Babalikan mo ba kahit nasaktan ka?", a:["Oo, mahal ko pa","Hindi na"]},
+            {q:"Namimiss mo pa ba ang inyong memories?", a:["Araw-araw","Minsan na lang"]},
+            {q:"Kung bumalik siya, tatanggapin mo ba?", a:["Oo naman","Hindi na"]},
+            {q:"Naniniwala ka pa ba sa forever?", a:["Oo","Hindi na"]},
+            {q:"Masaya ka ba kahit wala na siya?", a:["Oo, kinakaya ko","Hindi pa"]},
+            {q:"Kung makikita mo siya ulit, ano ang gagawin mo?", a:["Ngumingiti na lang","Iiwas na lang"]},
+            {q:"Handa ka na bang mag-move on?", a:["Handa na","Hindi pa"]}
+        ];
+
+        const scares = [
+            {type:"image",file:"joshua.jpeg",song:"joshua.mp3",start:76},
+            {type:"image",file:"joshua1.jpeg",song:"joshua.mp3",start:76},
+            {type:"image",file:"joshua2.jpeg",song:"joshua.mp3",start:76},
+            {type:"image",file:"joshua3.jpeg",song:"elton.mp3",start:49},
+            {type:"image",file:"venice.jpeg",song:"venice.mp3",start:90},
+            {type:"image",file:"alaala1.jpeg",song:"alaala1.mp3",start:51},
+            {type:"image",file:"alaala2.jpeg",song:"alaala.mp3",start:75},
+            {type:"video",file:"Venice.mp4",song:"masakit.mp3",start:70}
+        ];
+
+        let index = 0;
+        let busy = false;
+        let timer;
+
+        const quiz = document.getElementById("quiz");
+        const question = document.getElementById("question");
+        const answers = document.getElementById("answers");
+        const progress = document.getElementById("progress");
+        const jumpscare = document.getElementById("jumpscare");
+        const img = document.getElementById("scareImage");
+        const video = document.getElementById("scareVideo");
+        const music = document.getElementById("backgroundMusic");
+        const ending = document.getElementById("ending");
+
+        function showQuestion() {
+            if (index >= questions.length) {
+                quiz.style.display = "none";
+                ending.style.display = "block";
+                return;
+            }
+
+            quiz.style.display = "block";
+            progress.textContent = "Tanong " + (index + 1) + " of 8";
+            question.textContent = questions[index].q;
+            answers.innerHTML = "";
+
+            questions[index].a.forEach(answer => {
+                const button = document.createElement("button");
+                button.textContent = answer;
+                button.onclick = answerQuestion;
+                answers.appendChild(button);
+            });
+        }
+
+        function stopMedia() {
+            music.pause();
+            music.removeAttribute("src");
+            music.load();
+            video.pause();
+            video.removeAttribute("src");
+            video.load();
+        }
+
+        function answerQuestion() {
+            if (busy) return;
+            busy = true;
+
+            const scare = scares[index];
+            quiz.style.display = "none";
+            jumpscare.style.display = "flex";
+            img.style.display = "none";
+            video.style.display = "none";
+
+            stopMedia();
+
+            music.src = scare.song;
+            music.loop = true;
+            music.addEventListener("loadedmetadata", function startSong() {
+                music.currentTime = scare.start;
+                music.play().catch(() => {});
+            }, {once:true});
+            music.load();
+
+            function next() {
+                clearTimeout(timer);
+                stopMedia();
+                jumpscare.style.display = "none";
+                index++;
+                busy = false;
+                showQuestion();
+            }
+
+            if (scare.type === "image") {
+                img.src = scare.file;
+                img.style.display = "block";
+                timer = setTimeout(next, 10000);
+            } else {
+                video.src = scare.file;
+                video.controls = false;
+                video.muted = false;
+                video.style.display = "block";
+                video.play().catch(() => {
+                    alert("Hindi ma-play ang video. Tingnan ang filename na Venice.mp4.");
+                    next();
+                });
+                timer = setTimeout(next, 20000);
+            }
+        }
+
+        function restartQuiz() {
+            clearTimeout(timer);
+            stopMedia();
+            index = 0;
+            busy = false;
+            ending.style.display = "none";
+            showQuestion();
+        }
+
+        showQuestion();
+    </script>
+</body>
+</html>
