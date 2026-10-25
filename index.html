@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="tl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masakit na Quiz 💔</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container" id="quiz">
+        <h1>Masakit na Quiz 💔</h1>
+        <p class="subtitle">Handa ka na bang masaktan?</p>
+
+        <div class="progress" id="progress">Tanong 1 of 8</div>
+        <h2 id="question"></h2>
+        <div class="answers" id="answers"></div>
+
+        <p class="note">Pumili ng sagot sa sarili mong risk. 💔</p>
+    </div>
+
+    <div class="jumpscare" id="jumpscare">
+        <img id="scareImage" alt="Jumpscare">
+        <video id="scareVideo" playsinline preload="auto"></video>
+    </div>
+
+    <div class="ending" id="ending">
+        <h1>Tapos na. 💔</h1>
+        <p>Salamat sa paglaro ng Masakit na Quiz.</p>
+        <button id="restartButton">Ulitin ang Quiz</button>
+    </div>
+
+    <audio id="backgroundMusic" preload="auto"></audio>
+
+    <script>
+        const questions = [
+            {
+                q: "Mahal mo pa ba siya?",
+                a: ["Oo", "Hindi"]
+            },
+            {
+                q: "Babalikan mo ba kahit nasaktan ka?",
+                a: ["Oo, mahal ko pa", "Hindi na"]
+            },
+            {
+                q: "Namimiss mo pa ba ang inyong memories?",
+                a: ["Araw-araw", "Minsan na lang"]
+            },
+            {
+                q: "Kung bumalik siya, tatanggapin mo ba?",
+                a: ["Oo naman", "Hindi na"]
+            },
+            {
+                q: "Naniniwala ka pa ba sa forever?",
+                a: ["Oo", "Hindi na"]
+            },
+            {
+                q: "Masaya ka ba kahit wala na siya?",
+                a: ["Oo, kinakaya ko", "Hindi pa"]
+            },
+            {
+                q: "Kung makikita mo siya ulit, ano ang gagawin mo?",
+                a: ["Ngumingiti na lang", "Iiwas na lang"]
+            },
+            {
+                q: "Handa ka na bang tuluyang mag-move on?",
+                a: ["Handa na", "Hindi pa"]
+            }
+        ];
+
+        // 7 pictures + 1 video
+        // start = start time ng background song, in seconds
+        const scares = [
+            {
+                type: "image",
+                file: "joshua.jpeg",
+                song: "joshua.mp3",
+                start: 76
+            },
+            {
+                type: "image",
+                file: "joshua1.jpeg",
+                song: "joshua.mp3",
+                start: 76
+            },
+            {
+                type: "image",
+                file: "joshua2.jpeg",
+                song: "joshua.mp3",
+                start: 76
+            },
+            {
+                type: "image",
+                file: "joshua3.jpeg",
+                song: "elton.mp3",
+                start: 49
+            },
+            {
+                type: "image",
+                file: "venice.jpeg",
+                song: "venice.mp3",
+                start: 90
+            },
+            {
+                type: "image",
+                file: "alaala1.jpeg",
+                song: "alaala1.mp3",
+                start: 51
+            },
+            {
+                type: "image",
+                file: "alaala2.jpeg",
+                song: "alaala.mp3",
+                start: 75
+            },
+            {
+                type: "video",
+                file: "Venice.mp4",
+                song: "masakit.mp3",
+                start: 70
+            }
+        ];
+
+        const quiz = document.getElementById("quiz");
+        const questionText = document.getElementById("question");
+        const answers = document.getElementById("answers");
+        const progress = document.getElementById("progress");
+        const jumpscare = document.getElementById("jumpscare");
+        const scareImage = document.getElementById("scareImage");
+        const scareVideo = document.getElementById("scareVideo");
+        const music = document.getElementById("backgroundMusic");
+        const ending = document.getElementById("ending");
+
+        let questionIndex = 0;
+        let busy = false;
+        let scareTimer = null;
+        let scareToken = 0;
+
+        function showQuestion() {
+            if (questionIndex >= questions.length) {
+                quiz.style.display = "none";
+                jumpscare.style.display = "none";
+                ending.style.display = "block";
+                return;
+            }
+
+            progress.textContent =
+                `Tanong ${questionIndex + 1} of ${questions.length}`;
+
+            questionText.textContent = questions[questionIndex].q;
+            answers.innerHTML = "";
+
+            questions[questionIndex].a.forEach(answer => {
+                const button = document.createElement("button");
+                button.textContent = answer;
+                button.addEventListener("click", answerQuestion);
+                answers.appendChild(button);
+            });
+  
